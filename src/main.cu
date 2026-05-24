@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <stdexcept>
 
+#include "loader.h"
+
 // Validation - Check the shapes we know Llama 3.2 1B must have.
 
 // Load via Huggingface 
@@ -35,3 +37,28 @@
 //   (lm_head): Linear(in_features=2048, out_features=128256, bias=False)
 // )
 
+int main(int argc, char** argv) {
+    // argc = argument count
+    // argv = argument values (arg[0] is the program name, argv[1] is the first argument, etc.)
+
+    // 1. Check that a path was provided
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <path>\n", argv[0]);
+        return 1;
+    }
+
+    // 2. Load the weights
+    WeightMap weights = load_weights(argv[1]);
+    
+    // 3. Do something with the weights
+    for (auto& [name, info]: weights) {
+        // Each entry is a key-value pair
+        // key   = Tensor name (string)
+        // value = TensorInfo struct
+        printf("Name: %s\nShape: %zu\nDtype: %s\n", name.c_str(), info.shape.size(), info.dtype.c_str());
+    }
+
+    // 4. Print total count
+    printf("Total Tensors: %zu\n", weights.size());
+    return 0;
+}

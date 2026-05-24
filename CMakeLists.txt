@@ -24,6 +24,7 @@ find_package(CUDAToolkit REQUIRED)
 
 add_executable(tiny-infer
     src/main.cu
+    src/loader.cu
     src/kernels.cu
 )
 
