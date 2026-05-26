@@ -22,3 +22,4 @@ std::vector<__nv_bfloat16> run_rms_norm(
     int d_model,
     float eps
 );
+

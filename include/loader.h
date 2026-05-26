@@ -23,3 +23,5 @@ void free_weights(WeightMap& weights);
 size_t dtype_bytes(const std::string& dtype);
 
 __global__ void bf16_to_fp32(const __nv_bfloat16* input, float* output, int n);
+
+__global__ void sgemm(const float* __restrict__ a, const float* __restrict__ b, float* __restrict__ c, int m, int n, int k, float alpha, float beta);
