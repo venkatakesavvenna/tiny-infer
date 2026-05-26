@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <stdexcept>
+#include <cuda_bf16.h>
 
 #include "loader.h"
 #include "model.h"
@@ -72,11 +73,17 @@ int main(int argc, char** argv) {
     fwrite(token_ids, sizeof(int32_t), seq_len, fp_tokens);
     fclose(fp_tokens);
 
-    std::vector<__half> output = run_embedding_lookup(weights, token_ids, seq_len, d_model);
+    std::vector<__nv_bfloat16> output = run_embedding_lookup(weights, token_ids, seq_len, d_model);
+
+    // Convert the above into fp32
+    std::vector<float> output_fp32(output.size());
+    for (int i = 0; i < output.size(); i++) {
+        output_fp32[i] = __bfloat162float(output[i]);
+    }
 
     // Write to disk in fp16
     FILE* fp = fopen("/code/build/embeddings.bin", "wb");
-    fwrite(output.data(), sizeof(__half), output.size(), fp);
+    fwrite(output_fp32.data(), sizeof(float), output_fp32.size(), fp);
     fclose(fp);
 
     return 0;

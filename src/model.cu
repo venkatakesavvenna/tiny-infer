@@ -1,5 +1,5 @@
 #include <cuda_runtime.h>
-#include <cuda_fp16.h>
+#include <cuda_bf16.h>
 
 #include "loader.h"
 
@@ -14,8 +14,8 @@
 
 __global__ void embedding_lookup(
     const int32_t* token_ids,
-    const __half* embed_table,
-    __half* output,
+    const __nv_bfloat16* embed_table,
+    __nv_bfloat16* output,
     int seq_len,
     int d_model
 ){
@@ -29,21 +29,21 @@ __global__ void embedding_lookup(
     output[row * d_model + col] = embed_table[token_ids[row] * d_model + col];
 }
 
-std::vector<__half> run_embedding_lookup(
+std::vector<__nv_bfloat16> run_embedding_lookup(
     WeightMap& weights,
     int32_t* h_token_ids, // host token ids
     int seq_len,
     int d_model
 ) {
     // 1. Get embed table pointer from weights map
-    __half* embed_table = reinterpret_cast<__half*>(weights["model.embed_tokens.weight"].d_ptr);
+    __nv_bfloat16* embed_table = reinterpret_cast<__nv_bfloat16*>(weights["model.embed_tokens.weight"].d_ptr);
 
     // 2. Allocate device memory for token ids and output
     int32_t* d_token_ids = nullptr;
-    __half* d_output = nullptr;
+    __nv_bfloat16* d_output = nullptr;
 
     CUDA_CHECK(cudaMalloc(&d_token_ids, seq_len * sizeof(int32_t)));  
-    CUDA_CHECK(cudaMalloc(&d_output, seq_len * d_model * sizeof(__half))); 
+    CUDA_CHECK(cudaMalloc(&d_output, seq_len * d_model * sizeof(__nv_bfloat16))); 
 
     // 3. Copy token ids to device
     CUDA_CHECK(cudaMemcpy(d_token_ids, h_token_ids, seq_len * sizeof(int32_t), cudaMemcpyHostToDevice));
@@ -59,10 +59,10 @@ std::vector<__half> run_embedding_lookup(
     CUDA_CHECK(cudaDeviceSynchronize());
 
     // 6. Allocate host memory for output   
-    std::vector<__half> h_output(seq_len * d_model);
+    std::vector<__nv_bfloat16> h_output(seq_len * d_model);
 
     // 7. Copy output to host
-    CUDA_CHECK(cudaMemcpy(h_output.data(), d_output, seq_len * d_model * sizeof(__half), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_output.data(), d_output, seq_len * d_model * sizeof(__nv_bfloat16), cudaMemcpyDeviceToHost));
 
     // 8. Free device memory
     CUDA_CHECK(cudaFree(d_token_ids));

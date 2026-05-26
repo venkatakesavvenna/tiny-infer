@@ -3,10 +3,11 @@
 
 #include <cuda_runtime.h>
 #include <cuda_fp16.h>
+#include <cuda_bf16.h>
 
 #include "loader.h"
 
-std::vector<__half> run_embedding_lookup(
+std::vector<__nv_bfloat16> run_embedding_lookup(
     WeightMap &weights,
     int32_t *token_ids,
     int seq_len,

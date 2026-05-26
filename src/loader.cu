@@ -4,8 +4,10 @@
 #include <stdexcept>
 #include <cstdint>
 #include <cstring>
+#include <cuda_bf16.h>
 
 #include "loader.h"
+
 
 // CUDA CHECK MACRO
 #define CUDA_CHECK(call) do { \
@@ -15,6 +17,16 @@
         exit(EXIT_FAILURE); \
     }   \
 } while (0) 
+
+__global__ void bf16_to_fp32(
+    const __nv_bfloat16* input, 
+    float* output,
+    int n
+){
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx >= n) return;
+    output[idx] = __bfloat162float(input[idx]);
+}
 
 size_t dtype_bytes(const std::string& dtype) {
     if (dtype == "BF16") return 2; // F16 = 2 bytes
