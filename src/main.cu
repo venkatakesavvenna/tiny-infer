@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "loader.h"
+#include "model.h"
 
 // Validation - Check the shapes we know Llama 3.2 1B must have.
 
@@ -60,5 +61,23 @@ int main(int argc, char** argv) {
 
     // 4. Print total count
     printf("Total Tensors: %zu\n", weights.size());
+
+    // 5. Pass some test token ids to see if the tensors are loading properly
+    int32_t token_ids[] = {791, 6864, 315, 9822, 374};
+    int seq_len = 5;
+    int d_model = 2048;
+
+    // Write token ids to a bin as well, in the build folder
+    FILE* fp_tokens = fopen("/code/build/token_ids.bin", "wb");
+    fwrite(token_ids, sizeof(int32_t), seq_len, fp_tokens);
+    fclose(fp_tokens);
+
+    std::vector<__half> output = run_embedding_lookup(weights, token_ids, seq_len, d_model);
+
+    // Write to disk in fp16
+    FILE* fp = fopen("/code/build/embeddings.bin", "wb");
+    fwrite(output.data(), sizeof(__half), output.size(), fp);
+    fclose(fp);
+
     return 0;
 }

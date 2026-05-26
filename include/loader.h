@@ -16,3 +16,5 @@ using WeightMap = std::unordered_map<std::string, TensorInfo>;
 
 // Function Declaration
 WeightMap load_weights(const std::string& path); // Load weights
+
+void free_weights(WeightMap& weights);

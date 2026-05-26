@@ -26,6 +26,7 @@ add_executable(tiny-infer
     src/main.cu
     src/loader.cu
     src/kernels.cu
+    src/model.cu
 )
 
 target_include_directories(tiny-infer PRIVATE src)

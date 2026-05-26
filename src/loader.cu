@@ -168,3 +168,11 @@ WeightMap load_weights(const std::string& path){
 
     return weights;
 }
+
+void free_weights(WeightMap& weights) {
+    // For every weight in the map -> free this
+    for (auto& [name, info]: weights) {
+        CUDA_CHECK(cudaFree(info.d_ptr));
+        info.d_ptr = nullptr;
+    }
+}
