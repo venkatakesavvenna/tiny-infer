@@ -86,5 +86,24 @@ int main(int argc, char** argv) {
     fwrite(output_fp32.data(), sizeof(float), output_fp32.size(), fp);
     fclose(fp);
 
+    // Run RMSNorm on the embedding output using layer-0 input_layernorm weights.
+    std::vector<__nv_bfloat16> rms_out = run_rms_norm(
+        weights,
+        output.data(),
+        "model.layers.0.input_layernorm.weight",
+        seq_len,
+        d_model,
+        1e-5f
+    );
+
+    std::vector<float> rms_out_fp32(rms_out.size());
+    for (size_t i = 0; i < rms_out.size(); i++) {
+        rms_out_fp32[i] = __bfloat162float(rms_out[i]);
+    }
+
+    FILE* fp_rms = fopen("/code/build/rms_norm.bin", "wb");
+    fwrite(rms_out_fp32.data(), sizeof(float), rms_out_fp32.size(), fp_rms);
+    fclose(fp_rms);
+
     return 0;
 }

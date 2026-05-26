@@ -27,6 +27,7 @@ add_executable(tiny-infer
     src/loader.cu
     src/kernels.cu
     src/model.cu
+    src/rms_norm.cu
 )
 
 target_include_directories(tiny-infer PRIVATE src)

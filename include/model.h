@@ -13,3 +13,12 @@ std::vector<__nv_bfloat16> run_embedding_lookup(
     int seq_len,
     int d_model
 );
+
+std::vector<__nv_bfloat16> run_rms_norm(
+    WeightMap &weights,
+    const __nv_bfloat16 *h_input,
+    const std::string &weight_name,
+    int seq_len,
+    int d_model,
+    float eps
+);
