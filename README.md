@@ -91,7 +91,7 @@ INT8 KV cache quantization + final polish.
 
 **Llama 3.2 1B Instruct — The Model**
 
-![Llama 3.2 Architecture](docs/llama_3_2.png)
+![Llama 3.2 Architecture](docs/LLama_3_2.png)
 
 **Inference Engine Stack**
 
